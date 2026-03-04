@@ -1,6 +1,6 @@
 import axios from "axios";
 
-import { getAccessToken } from "../auth/tokenStorage";
+import { getAccessToken } from "../auth/token-storage";
 
 export const api = axios.create({
   baseURL: import.meta.env.VITE_API_BASE_URL ?? "http://localhost:3000",

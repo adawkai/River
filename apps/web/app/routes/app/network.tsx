@@ -1,15 +1,25 @@
 import { useCallback, useEffect, useRef, useState } from "react";
 import { Link } from "react-router";
 
-import { Avatar, AvatarFallback, AvatarImage } from "../../components/ui/avatar";
+import {
+  Avatar,
+  AvatarFallback,
+  AvatarImage,
+} from "../../components/ui/avatar";
 import { Card, CardContent } from "../../components/ui/card";
 import { Input } from "../../components/ui/input";
-import { searchUsers, setQuery, resetSearch } from "../../features/users/usersSlice";
+import {
+  searchUsers,
+  setQuery,
+  resetSearch,
+} from "../../features/user/user.slice";
 import { useAppDispatch, useAppSelector } from "../../store/hooks";
 
 export default function NetworkRoute() {
   const dispatch = useAppDispatch();
-  const { items, status, query, hasMore, nextCursor } = useAppSelector((s) => s.users);
+  const { items, status, query, hasMore, nextCursor } = useAppSelector(
+    (s) => s.users
+  );
   const [searchTerm, setSearchTerm] = useState(query);
   const observerTarget = useRef<HTMLDivElement>(null);
 
@@ -63,7 +73,7 @@ export default function NetworkRoute() {
           loadMore();
         }
       },
-      { threshold: 0.1 },
+      { threshold: 0.1 }
     );
 
     observer.observe(el);
@@ -113,7 +123,9 @@ export default function NetworkRoute() {
                   >
                     {user.name || user.username}
                   </Link>
-                  <p className="truncate text-sm text-muted-foreground">@{user.username}</p>
+                  <p className="truncate text-sm text-muted-foreground">
+                    @{user.username}
+                  </p>
                 </div>
               </div>
               <div className="mt-4 flex gap-4 text-xs text-muted-foreground">

@@ -16,9 +16,12 @@ export {
   UserRole,
   UserResponseDTO,
   ProfileResponseDTO,
-  ListUsersResponseDTO,
+  UserErrorResponseDTO,
 } from "./user/user.response.dto";
-export { ListUserResponseDTO } from "./user/list-user.response.dto";
+export {
+  ListUserResponseDTO,
+  ListUserErrorResponseDTO,
+} from "./user/list-user.response.dto";
 
 // Follow DTOs
 export {
@@ -56,8 +59,14 @@ export {
   CreatePostResponseDTO,
   CreatePostErrorResponseDTO,
 } from "./post/create-post.response.dto";
-export { PostResponseDTO } from "./post/post.response.dto";
-export { PostListResponseDTO } from "./post/post-list.response.dto";
+export {
+  PostResponseDTO,
+  PostErrorResponseDTO,
+} from "./post/post.response.dto";
+export {
+  ListPostResponseDTO,
+  ListPostErrorResponseDTO,
+} from "./post/post-list.response.dto";
 
 // BlockDTOs
 export {

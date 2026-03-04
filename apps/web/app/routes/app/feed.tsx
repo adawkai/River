@@ -2,16 +2,27 @@ import { useEffect, useRef, useState } from "react";
 import { Link } from "react-router";
 
 import { Button } from "../../components/ui/button";
-import { Card, CardContent, CardHeader, CardTitle } from "../../components/ui/card";
+import {
+  Card,
+  CardContent,
+  CardHeader,
+  CardTitle,
+} from "../../components/ui/card";
 import { Textarea } from "../../components/ui/textarea";
-import { Avatar, AvatarFallback, AvatarImage } from "../../components/ui/avatar";
+import {
+  Avatar,
+  AvatarFallback,
+  AvatarImage,
+} from "../../components/ui/avatar";
 import { useAppDispatch, useAppSelector } from "../../store/hooks";
-import { createPost, fetchFeed } from "../../features/feed/feedSlice";
-import { PostCard } from "../../features/feed/components/PostCard";
+import { createPost, fetchFeed } from "../../features/post/post.slice";
+import { PostCard } from "../../features/post/components/PostCard";
 
 export default function FeedRoute() {
   const dispatch = useAppDispatch();
-  const { items, status, error, hasMore, nextCursor } = useAppSelector((s) => s.feed);
+  const { items, status, error, hasMore, nextCursor } = useAppSelector(
+    (s) => s.feed
+  );
   const observerTarget = useRef<HTMLDivElement>(null);
 
   const [content, setContent] = useState("");
@@ -29,7 +40,7 @@ export default function FeedRoute() {
           void dispatch(fetchFeed({ cursor: nextCursor }));
         }
       },
-      { threshold: 1.0 },
+      { threshold: 1.0 }
     );
 
     if (observerTarget.current) {
@@ -63,8 +74,13 @@ export default function FeedRoute() {
             placeholder="What’s happening?"
           />
           <div className="flex items-center justify-between">
-            <p className="text-sm text-muted-foreground">{content.length}/280</p>
-            <Button onClick={onPost} disabled={status === "loading" || !content.trim()}>
+            <p className="text-sm text-muted-foreground">
+              {content.length}/280
+            </p>
+            <Button
+              onClick={onPost}
+              disabled={status === "loading" || !content.trim()}
+            >
               Post
             </Button>
           </div>
@@ -83,12 +99,15 @@ export default function FeedRoute() {
 
         {status !== "loading" && items.length === 0 ? (
           <p className="text-sm text-muted-foreground">
-            Your feed is empty. Follow someone and their posts will show up here.
+            Your feed is empty. Follow someone and their posts will show up
+            here.
           </p>
         ) : null}
 
         {status === "loading" && items.length > 0 ? (
-          <p className="py-4 text-center text-sm text-muted-foreground">Loading more posts…</p>
+          <p className="py-4 text-center text-sm text-muted-foreground">
+            Loading more posts…
+          </p>
         ) : null}
 
         <div ref={observerTarget} className="h-1" />

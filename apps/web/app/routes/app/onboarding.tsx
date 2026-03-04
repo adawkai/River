@@ -2,12 +2,22 @@ import { useEffect, useMemo, useState } from "react";
 import { useNavigate } from "react-router";
 
 import { Button } from "../../components/ui/button";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "../../components/ui/card";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "../../components/ui/card";
 import { Input } from "../../components/ui/input";
 import { Label } from "../../components/ui/label";
-import { Avatar, AvatarFallback, AvatarImage } from "../../components/ui/avatar";
+import {
+  Avatar,
+  AvatarFallback,
+  AvatarImage,
+} from "../../components/ui/avatar";
 import { useAppDispatch, useAppSelector } from "../../store/hooks";
-import { updateMyProfile } from "../../features/users/usersSlice";
+import { updateMyProfile } from "../../features/user/user.slice";
 import { uploadAvatar } from "../../shared/storage/s3";
 
 function initials(username: string) {
@@ -65,7 +75,7 @@ export default function OnboardingRoute() {
         updateMyProfile({
           name: name.trim() || undefined,
           avatarUrl,
-        }),
+        })
       ).unwrap();
       navigate("/", { replace: true });
     } finally {
@@ -88,8 +98,12 @@ export default function OnboardingRoute() {
           <form className="space-y-6" onSubmit={onSubmit}>
             <div className="flex items-center gap-4">
               <Avatar className="h-16 w-16">
-                {currentAvatar ? <AvatarImage src={currentAvatar} alt={me.username} /> : null}
-                <AvatarFallback className="text-lg">{initials(me.username) || "U"}</AvatarFallback>
+                {currentAvatar ? (
+                  <AvatarImage src={currentAvatar} alt={me.username} />
+                ) : null}
+                <AvatarFallback className="text-lg">
+                  {initials(me.username) || "U"}
+                </AvatarFallback>
               </Avatar>
               <div className="space-y-2">
                 <Label htmlFor="avatar">Avatar</Label>
@@ -129,7 +143,11 @@ export default function OnboardingRoute() {
                 type="submit"
                 disabled={status === "loading" || uploading || !name.trim()}
               >
-                {uploading ? "Uploading..." : status === "loading" ? "Saving..." : "Continue"}
+                {uploading
+                  ? "Uploading..."
+                  : status === "loading"
+                    ? "Saving..."
+                    : "Continue"}
               </Button>
             </div>
           </form>
@@ -138,4 +156,3 @@ export default function OnboardingRoute() {
     </div>
   );
 }
-

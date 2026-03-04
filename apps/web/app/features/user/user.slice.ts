@@ -4,21 +4,34 @@ import {
   type PayloadAction,
 } from "@reduxjs/toolkit";
 
-import { api, getApiErrorMessage } from "../../shared/api/client";
-import type { User, SearchResponse, UpdateProfileDto } from "./types";
-import type { Post, FeedResponse } from "../feed/types";
+// thunks
 import {
   followUser,
   unfollowUser,
   blockUser,
-} from "../relations/relationsSlice";
+} from "../relation/relation.slice";
+
+// utilities
+import { api, getApiErrorMessage } from "../../shared/api/client";
+import { UserMapper } from "./user.mapper";
+import { PostMapper } from "../post/post.mapper";
+
+// Types && DTOs
+import type { ListPostResponse, Post, PostError } from "../post/post.types";
+import type {
+  User,
+  UpdateProfileDto,
+  ListUserResponse,
+  UserResponse,
+  UserError,
+} from "./user.types";
 
 type PaginatedState<T> = {
   items: T[];
   nextCursor: string | null;
   hasMore: boolean;
   status: "idle" | "loading" | "failed";
-  error: string | null;
+  error: UserError | PostError | null;
 };
 
 type UsersState = {
@@ -26,7 +39,7 @@ type UsersState = {
   entitiesById: Record<string, User | undefined>;
   entitiesByUsername: Record<string, User | undefined>;
   status: "idle" | "loading" | "failed";
-  error: string | null;
+  error: UserError | null;
   query: string;
   nextCursor: string | null;
   hasMore: boolean;
@@ -61,104 +74,191 @@ const initialState: UsersState = {
 };
 
 export const searchUsers = createAsyncThunk<
-  { data: SearchResponse; query: string; isReset: boolean },
+  { data: { items: User[]; nextCursor: string | null }; isReset: boolean },
   { query: string; cursor?: string | null; reset?: boolean }
 >("users/search", async ({ query, cursor, reset }, { rejectWithValue }) => {
   try {
-    const res = await api.get<SearchResponse>("/users/search", {
+    const res = await api.get<ListUserResponse>("/users/search", {
       params: { query, cursor, take: PAGE_SIZE },
     });
-    return { data: res.data, query, isReset: !!reset };
+    if ("error" in res.data) {
+      return rejectWithValue(res.data.error);
+    }
+    return {
+      data: {
+        items: res.data.items.map((item) => UserMapper.toUser(item)),
+        nextCursor: res.data.nextCursor,
+      },
+      isReset: !!reset,
+    };
   } catch (e) {
-    return rejectWithValue(getApiErrorMessage(e));
+    return rejectWithValue({
+      code: "FRONTEND_ERROR",
+      message: getApiErrorMessage(e),
+    });
   }
 });
 
 export const fetchUserPosts = createAsyncThunk<
-  { userId: string; data: FeedResponse; isReset: boolean },
+  {
+    userId: string;
+    data: { items: Post[]; nextCursor: string | null };
+    isReset: boolean;
+  },
   { userId: string; cursor?: string | null; reset?: boolean }
 >(
   "users/fetchPosts",
   async ({ userId, cursor, reset }, { rejectWithValue }) => {
     try {
-      const res = await api.get<FeedResponse>(`/users/${userId}/posts`, {
+      const res = await api.get<ListPostResponse>(`/users/${userId}/posts`, {
         params: { cursor, take: PAGE_SIZE },
       });
-      return { userId, data: res.data, isReset: !!reset };
+      if ("error" in res.data) {
+        return rejectWithValue(res.data.error);
+      }
+      return {
+        userId,
+        data: {
+          items: res.data.items.map((item) => PostMapper.toPost(item)),
+          nextCursor: res.data.nextCursor,
+        },
+        isReset: !!reset,
+      };
     } catch (e) {
-      return rejectWithValue(getApiErrorMessage(e));
+      return rejectWithValue({
+        code: "FRONTEND_ERROR",
+        message: getApiErrorMessage(e),
+      });
     }
-  },
+  }
 );
 
 export const fetchFollowers = createAsyncThunk<
-  { userId: string; data: SearchResponse; isReset: boolean },
+  {
+    userId: string;
+    data: { items: User[]; nextCursor: string | null };
+    isReset: boolean;
+  },
   { userId: string; cursor?: string | null; reset?: boolean }
 >(
   "users/fetchFollowers",
   async ({ userId, cursor, reset }, { rejectWithValue }) => {
     try {
-      const res = await api.get<SearchResponse>(`/users/${userId}/followers`, {
-        params: { cursor, take: PAGE_SIZE },
-      });
-      return { userId, data: res.data, isReset: !!reset };
+      const res = await api.get<ListUserResponse>(
+        `/users/${userId}/followers`,
+        {
+          params: { cursor, take: PAGE_SIZE },
+        }
+      );
+      if ("error" in res.data) {
+        return rejectWithValue(res.data.error);
+      }
+      return {
+        userId,
+        data: {
+          items: res.data.items.map((item) => UserMapper.toUser(item)),
+          nextCursor: res.data.nextCursor,
+        },
+        isReset: !!reset,
+      };
     } catch (e) {
-      return rejectWithValue(getApiErrorMessage(e));
+      return rejectWithValue({
+        code: "FRONTEND_ERROR",
+        message: getApiErrorMessage(e),
+      });
     }
-  },
+  }
 );
 
 export const fetchFollowing = createAsyncThunk<
-  { userId: string; data: SearchResponse; isReset: boolean },
+  {
+    userId: string;
+    data: { items: User[]; nextCursor: string | null };
+    isReset: boolean;
+  },
   { userId: string; cursor?: string | null; reset?: boolean }
 >(
   "users/fetchFollowing",
   async ({ userId, cursor, reset }, { rejectWithValue }) => {
     try {
-      const res = await api.get<SearchResponse>(`/users/${userId}/following`, {
-        params: { cursor, take: PAGE_SIZE },
-      });
-      return { userId, data: res.data, isReset: !!reset };
+      const res = await api.get<ListUserResponse>(
+        `/users/${userId}/following`,
+        {
+          params: { cursor, take: PAGE_SIZE },
+        }
+      );
+      if ("error" in res.data) {
+        return rejectWithValue(res.data.error);
+      }
+      return {
+        userId,
+        data: {
+          items: res.data.items.map((item) => UserMapper.toUser(item)),
+          nextCursor: res.data.nextCursor,
+        },
+        isReset: !!reset,
+      };
     } catch (e) {
-      return rejectWithValue(getApiErrorMessage(e));
+      return rejectWithValue({
+        code: "FRONTEND_ERROR",
+        message: getApiErrorMessage(e),
+      });
     }
-  },
+  }
 );
 
 export const fetchUserById = createAsyncThunk<User, { userId: string }>(
   "users/fetchById",
   async ({ userId }, { rejectWithValue }) => {
     try {
-      const res = await api.get<User>(`/users/${userId}`);
-      return res.data;
+      const res = await api.get<UserResponse>(`/users/${userId}`);
+      if ("error" in res.data) {
+        return rejectWithValue(res.data.error);
+      }
+      return UserMapper.toUser(res.data);
     } catch (e) {
-      return rejectWithValue(getApiErrorMessage(e));
+      return rejectWithValue({
+        code: "FRONTEND_ERROR",
+        message: getApiErrorMessage(e),
+      });
     }
-  },
+  }
 );
 
 export const fetchUserByUsername = createAsyncThunk<User, { username: string }>(
   "users/fetchByUsername",
   async ({ username }, { rejectWithValue }) => {
     try {
-      const res = await api.get<User>(`/users/by-username/${username}`);
-      return res.data;
+      const res = await api.get<UserResponse>(`/users/by-username/${username}`);
+      if ("error" in res.data) {
+        return rejectWithValue(res.data.error);
+      }
+      return UserMapper.toUser(res.data);
     } catch (e) {
-      return rejectWithValue(getApiErrorMessage(e));
+      return rejectWithValue({
+        code: "FRONTEND_ERROR",
+        message: getApiErrorMessage(e),
+      });
     }
-  },
+  }
 );
 
 export const updateMyProfile = createAsyncThunk<User, UpdateProfileDto>(
   "users/updateMyProfile",
   async (dto, { rejectWithValue }) => {
     try {
-      const res = await api.patch<User>("/users/me/profile", dto);
-      return res.data;
+      const res = await api.patch<UserResponse>("/users/me/profile", dto);
+      if ("error" in res.data) {
+        return rejectWithValue(res.data.error);
+      }
+      return UserMapper.toUser(res.data);
     } catch (e) {
-      return rejectWithValue(getApiErrorMessage(e));
+      return rejectWithValue({
+        code: "FRONTEND_ERROR",
+        message: getApiErrorMessage(e),
+      });
     }
-  },
+  }
 );
 
 const usersSlice = createSlice({
@@ -209,7 +309,10 @@ const usersSlice = createSlice({
       })
       .addCase(searchUsers.rejected, (state, action) => {
         state.status = "failed";
-        state.error = (action.payload as string) ?? "Failed to search users";
+        state.error = (action.payload as UserError) ?? {
+          code: "SEARCH_USERS_FAILED",
+          message: "Failed to search users",
+        };
       })
       .addCase(fetchUserById.pending, (state) => {
         state.status = "loading";
@@ -222,7 +325,10 @@ const usersSlice = createSlice({
       })
       .addCase(fetchUserById.rejected, (state, action) => {
         state.status = "failed";
-        state.error = (action.payload as string) ?? "Failed to fetch user";
+        state.error = (action.payload as UserError) ?? {
+          code: "FETCH_USER_FAILED",
+          message: "Failed to fetch user",
+        };
       })
       .addCase(fetchUserByUsername.pending, (state) => {
         state.status = "loading";
@@ -235,7 +341,10 @@ const usersSlice = createSlice({
       })
       .addCase(fetchUserByUsername.rejected, (state, action) => {
         state.status = "failed";
-        state.error = (action.payload as string) ?? "Failed to fetch user";
+        state.error = (action.payload as UserError) ?? {
+          code: "FETCH_USER_FAILED",
+          message: "Failed to fetch user",
+        };
       })
       .addCase(updateMyProfile.pending, (state) => {
         state.status = "loading";
@@ -248,7 +357,10 @@ const usersSlice = createSlice({
       })
       .addCase(updateMyProfile.rejected, (state, action) => {
         state.status = "failed";
-        state.error = (action.payload as string) ?? "Failed to update profile";
+        state.error = (action.payload as UserError) ?? {
+          code: "UPDATE_PROFILE_FAILED",
+          message: "Failed to update profile",
+        };
       })
       // User Posts
       .addCase(fetchUserPosts.pending, (state, action) => {
@@ -275,8 +387,10 @@ const usersSlice = createSlice({
         const { userId } = action.meta.arg;
         if (state.userPosts[userId]) {
           state.userPosts[userId]!.status = "failed";
-          state.userPosts[userId]!.error =
-            (action.payload as string) ?? "Failed to fetch posts";
+          state.userPosts[userId]!.error = (action.payload as PostError) ?? {
+            code: "FETCH_POSTS_FAILED",
+            message: "Failed to fetch posts",
+          };
         }
       })
       // Followers
@@ -304,8 +418,12 @@ const usersSlice = createSlice({
         const { userId } = action.meta.arg;
         if (state.followers[userId]) {
           state.followers[userId]!.status = "failed";
-          state.followers[userId]!.error =
-            (action.payload as string) ?? "Failed to fetch followers";
+          state.followers[userId]!.error = (action.payload as
+            | UserError
+            | PostError) ?? {
+            code: "FETCH_FOLLOWERS_FAILED",
+            message: "Failed to fetch followers",
+          };
         }
       })
       // Following
@@ -333,8 +451,10 @@ const usersSlice = createSlice({
         const { userId } = action.meta.arg;
         if (state.following[userId]) {
           state.following[userId]!.status = "failed";
-          state.following[userId]!.error =
-            (action.payload as string) ?? "Failed to fetch following";
+          state.following[userId]!.error = (action.payload as UserError) ?? {
+            code: "FETCH_FOLLOWING_FAILED",
+            message: "Failed to fetch following",
+          };
         }
       })
       .addCase(followUser.fulfilled, (state, action) => {
@@ -369,24 +489,12 @@ const usersSlice = createSlice({
               userById?.followersCount ?? Math.max(0, u.followersCount - 1);
           }
         }
-      })
-      .addCase(blockUser.fulfilled, (state, action) => {
-        const { targetUserId } = action.payload;
-        const userById = state.entitiesById[targetUserId];
-        if (userById) {
-          userById.followersCount = Math.max(0, userById.followersCount - 1);
-        }
-
-        for (const username in state.entitiesByUsername) {
-          const u = state.entitiesByUsername[username];
-          if (u && u.id === targetUserId) {
-            u.followersCount =
-              userById?.followersCount ?? Math.max(0, u.followersCount - 1);
-          }
-        }
       });
   },
 });
+
+//TODO: Make user to unfollow first when user block following user
+//TODO: Make user to unblock first when user follow blocked user
 
 export const { resetSearch, setQuery, clearEntities } = usersSlice.actions;
 export default usersSlice.reducer;

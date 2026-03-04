@@ -39,7 +39,7 @@ import {
   fetchFollowers,
   fetchFollowing,
   updateMyProfile,
-} from "../../features/users/usersSlice";
+} from "../../features/user/user.slice";
 import {
   blockUser,
   cancelFollowRequest,
@@ -47,8 +47,8 @@ import {
   unblockUser,
   unfollowUser,
   fetchRelation,
-} from "../../features/relations/relationsSlice";
-import { PostCard } from "../../features/feed/components/PostCard";
+} from "../../features/relation/relation.slice";
+import { PostCard } from "../../features/post/components/PostCard";
 import { cn } from "~/lib/utils";
 
 type Tab = "posts" | "followers" | "following";
@@ -83,13 +83,13 @@ export default function ProfileRoute() {
 
   // Pagination states from Redux
   const userPosts = useAppSelector((s) =>
-    user ? s.users.userPosts[user.id] : undefined,
+    user ? s.users.userPosts[user.id] : undefined
   );
   const followers = useAppSelector((s) =>
-    user ? s.users.followers[user.id] : undefined,
+    user ? s.users.followers[user.id] : undefined
   );
   const following = useAppSelector((s) =>
-    user ? s.users.following[user.id] : undefined,
+    user ? s.users.following[user.id] : undefined
   );
 
   const observerTarget = useRef<HTMLDivElement>(null);
@@ -115,7 +115,7 @@ export default function ProfileRoute() {
             userId,
             reset,
             cursor: reset ? undefined : userPosts?.nextCursor,
-          }),
+          })
         );
       } else if (activeTab === "followers") {
         void dispatch(
@@ -123,7 +123,7 @@ export default function ProfileRoute() {
             userId,
             reset,
             cursor: reset ? undefined : followers?.nextCursor,
-          }),
+          })
         );
       } else if (activeTab === "following") {
         void dispatch(
@@ -131,7 +131,7 @@ export default function ProfileRoute() {
             userId,
             reset,
             cursor: reset ? undefined : following?.nextCursor,
-          }),
+          })
         );
       }
     },
@@ -142,7 +142,7 @@ export default function ProfileRoute() {
       userPosts?.nextCursor,
       followers?.nextCursor,
       following?.nextCursor,
-    ],
+    ]
   );
 
   useEffect(() => {
@@ -168,7 +168,7 @@ export default function ProfileRoute() {
           loadTabData();
         }
       },
-      { threshold: 1.0 },
+      { threshold: 1.0 }
     );
 
     if (observerTarget.current) observer.observe(observerTarget.current);
@@ -236,7 +236,7 @@ export default function ProfileRoute() {
                               variant="secondary"
                               onClick={() =>
                                 dispatch(
-                                  unfollowUser({ targetUserId: user.id }),
+                                  unfollowUser({ targetUserId: user.id })
                                 )
                               }
                             >
@@ -249,7 +249,7 @@ export default function ProfileRoute() {
                                 dispatch(
                                   cancelFollowRequest({
                                     targetUserId: user.id,
-                                  }),
+                                  })
                                 )
                               }
                             >
@@ -364,7 +364,7 @@ export default function ProfileRoute() {
               "px-6 py-3 text-sm font-medium border-b-2 transition-colors",
               activeTab === t
                 ? "border-primary text-primary"
-                : "border-transparent text-muted-foreground hover:text-foreground",
+                : "border-transparent text-muted-foreground hover:text-foreground"
             )}
           >
             {t.charAt(0).toUpperCase() + t.slice(1)}
@@ -428,7 +428,7 @@ export default function ProfileRoute() {
                       </Button>
                     </Link>
                   </div>
-                ),
+                )
               )}
               {(activeTab === "followers" ? followers : following)?.status ===
                 "loading" && <div className="p-4 text-center">Loading…</div>}

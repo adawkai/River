@@ -1,12 +1,11 @@
 import { Link } from "react-router";
-import { Avatar, AvatarFallback, AvatarImage } from "../../../components/ui/avatar";
-import { Card, CardContent } from "../../../components/ui/card";
-import type { Post } from "../types";
+import { Avatar, AvatarFallback, AvatarImage } from "~/components/ui/avatar";
+import { Card, CardContent } from "~/components/ui/card";
+import type { Post } from "../post.types";
 
-function timeAgo(iso: string) {
-  const d = new Date(iso);
-  const s = Math.floor((Date.now() - d.getTime()) / 1000);
-  if (Number.isNaN(s)) return iso;
+function timeAgo(date: Date) {
+  const s = Math.floor((Date.now() - date.getTime()) / 1000);
+  if (Number.isNaN(s)) return date.toLocaleString();
   if (s < 60) return `${s}s`;
   const m = Math.floor(s / 60);
   if (m < 60) return `${m}m`;
@@ -27,7 +26,9 @@ export function PostCard({ post }: PostCardProps) {
         <Link to={`/u/${post.author.username}`}>
           <Avatar className="h-10 w-10">
             <AvatarImage src={post.author.profile?.avatarUrl ?? undefined} />
-            <AvatarFallback>{post.author.username[0].toUpperCase()}</AvatarFallback>
+            <AvatarFallback>
+              {post.author.username[0].toUpperCase()}
+            </AvatarFallback>
           </Avatar>
         </Link>
         <div className="flex-1 space-y-1">

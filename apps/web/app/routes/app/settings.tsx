@@ -1,10 +1,16 @@
 import { useState } from "react";
 
 import { Button } from "../../components/ui/button";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "../../components/ui/card";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "../../components/ui/card";
 import { Label } from "../../components/ui/label";
 import { useAppDispatch, useAppSelector } from "../../store/hooks";
-import { updatePrivacy } from "../../features/me/meSlice";
+import { updateProfile } from "../../features/me/me.slice";
 
 export default function SettingsRoute() {
   const dispatch = useAppDispatch();
@@ -17,7 +23,7 @@ export default function SettingsRoute() {
   if (!me) return null;
 
   const onSave = async () => {
-    await dispatch(updatePrivacy({ isPrivate })).unwrap();
+    await dispatch(updateProfile({ isPrivate })).unwrap();
   };
 
   return (
@@ -56,4 +62,3 @@ export default function SettingsRoute() {
     </div>
   );
 }
-

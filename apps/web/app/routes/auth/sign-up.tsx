@@ -2,11 +2,17 @@ import { useEffect, useState } from "react";
 import { Link, useNavigate } from "react-router";
 
 import { Button } from "../../components/ui/button";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "../../components/ui/card";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "../../components/ui/card";
 import { Input } from "../../components/ui/input";
 import { Label } from "../../components/ui/label";
 import { useAppDispatch, useAppSelector } from "../../store/hooks";
-import { register } from "../../features/auth/authSlice";
+import { register } from "../../features/auth/auth.slice";
 
 export default function SignUpRoute() {
   const dispatch = useAppDispatch();
@@ -73,13 +79,20 @@ export default function SignUpRoute() {
 
             {error ? <p className="text-sm text-destructive">{error}</p> : null}
 
-            <Button type="submit" className="w-full" disabled={status === "loading"}>
+            <Button
+              type="submit"
+              className="w-full"
+              disabled={status === "loading"}
+            >
               {status === "loading" ? "Creating..." : "Sign up"}
             </Button>
 
             <p className="text-center text-sm text-muted-foreground">
               Already have an account?{" "}
-              <Link to="/sign-in" className="text-primary underline-offset-4 hover:underline">
+              <Link
+                to="/sign-in"
+                className="text-primary underline-offset-4 hover:underline"
+              >
                 Sign in
               </Link>
             </p>
@@ -89,4 +102,3 @@ export default function SignUpRoute() {
     </div>
   );
 }
-

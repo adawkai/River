@@ -1,19 +1,26 @@
 import { createAsyncThunk, createSlice } from "@reduxjs/toolkit";
 
 import { api, getApiErrorMessage } from "../../shared/api/client";
-import type { Post, CreatePostDto, FeedResponse } from "./types";
+import type {
+  Post,
+  PostError,
+  ListPostResponse,
+  CreatePostResponse,
+} from "./post.types";
+import { PostMapper } from "./post.mapper";
+import type { CreatePostBodyDTO } from "@social/shared";
 
-type FeedState = {
+type PostState = {
   items: Post[];
   status: "idle" | "loading" | "failed";
-  error: string | null;
+  error: PostError | null;
   nextCursor: string | null;
   hasMore: boolean;
 };
 
 const PAGE_SIZE = 20;
 
-const initialState: FeedState = {
+const initialState: PostState = {
   items: [],
   status: "idle",
   error: null,
@@ -22,31 +29,49 @@ const initialState: FeedState = {
 };
 
 export const fetchFeed = createAsyncThunk<
-  { data: FeedResponse; isReset: boolean },
+  { data: { items: Post[]; nextCursor: string | null }; isReset: boolean },
   { cursor?: string | null; reset?: boolean } | void
 >("feed/fetch", async (params, { rejectWithValue }) => {
   try {
     const cursor = params ? params.cursor : undefined;
     const reset = params ? params.reset : false;
-    const res = await api.get<FeedResponse>("/posts/feed", {
+    const res = await api.get<ListPostResponse>("/posts/feed", {
       params: { cursor, take: PAGE_SIZE },
     });
-    return { data: res.data, isReset: !!reset };
+    if ("error" in res.data) {
+      return rejectWithValue(res.data.error);
+    }
+    return {
+      data: {
+        items: res.data.items.map((item) => PostMapper.toPost(item)),
+        nextCursor: res.data.nextCursor,
+      },
+      isReset: !!reset,
+    };
   } catch (e) {
-    return rejectWithValue(getApiErrorMessage(e));
+    return rejectWithValue({
+      code: "FETCH_POSTS_FAILED",
+      message: getApiErrorMessage(e),
+    });
   }
 });
 
-export const createPost = createAsyncThunk<Post, CreatePostDto>(
+export const createPost = createAsyncThunk<Post, CreatePostBodyDTO>(
   "feed/createPost",
   async (dto, { rejectWithValue }) => {
     try {
-      const res = await api.post<{ ok: boolean; post: Post }>("/posts", dto);
-      return res.data.post;
+      const res = await api.post<CreatePostResponse>("/posts", dto);
+      if ("error" in res.data) {
+        return rejectWithValue(res.data.error);
+      }
+      return PostMapper.toPost(res.data.post);
     } catch (e) {
-      return rejectWithValue(getApiErrorMessage(e));
+      return rejectWithValue({
+        code: "CREATE_POST_FAILED",
+        message: getApiErrorMessage(e),
+      });
     }
-  },
+  }
 );
 
 const feedSlice = createSlice({
@@ -82,7 +107,10 @@ const feedSlice = createSlice({
       })
       .addCase(fetchFeed.rejected, (state, action) => {
         state.status = "failed";
-        state.error = (action.payload as string) ?? "Failed to load feed";
+        state.error = (action.payload as PostError) ?? {
+          code: "FETCH_POSTS_FAILED",
+          message: "Failed to load feed",
+        };
       })
       .addCase(createPost.pending, (state) => {
         state.status = "loading";
@@ -95,7 +123,10 @@ const feedSlice = createSlice({
       })
       .addCase(createPost.rejected, (state, action) => {
         state.status = "failed";
-        state.error = (action.payload as string) ?? "Failed to create post";
+        state.error = (action.payload as PostError) ?? {
+          code: "CREATE_POST_FAILED",
+          message: "Failed to create post",
+        };
       });
   },
 });

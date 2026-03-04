@@ -4,7 +4,7 @@ import { Outlet, useLocation, useNavigate } from "react-router";
 import { RequireAuth } from "../../components/auth/RequireAuth";
 import { AppShell } from "../../components/layout/AppShell";
 import { useAppDispatch, useAppSelector } from "../../store/hooks";
-import { fetchMe } from "../../features/me/meSlice";
+import { fetchMe } from "../../features/me/me.slice";
 
 function isProfileComplete(user: { name: string | null } | null) {
   return !!user?.name;

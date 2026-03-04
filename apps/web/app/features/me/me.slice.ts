@@ -1,19 +1,26 @@
 import { createAsyncThunk, createSlice } from "@reduxjs/toolkit";
 
 import { api, getApiErrorMessage } from "../../shared/api/client";
-import type { User, UpdatePrivacyDto } from "../users/types";
-import { updateMyProfile } from "../users/usersSlice";
-import { login, register, logout } from "../auth/authSlice";
+import { UserMapper } from "../user/user.mapper";
+import type {
+  User,
+  UpdatePrivacyDto,
+  UserResponse,
+  UserError,
+} from "../user/user.types";
+import { updateMyProfile } from "../user/user.slice";
+import { login, register, logout } from "../auth/auth.slice";
 import {
   followUser,
   unfollowUser,
   blockUser,
-} from "../relations/relationsSlice";
+} from "../relation/relation.slice";
+import type { UpdateProfileBodyDTO } from "@social/shared";
 
 type MeState = {
   me: User | null;
   status: "idle" | "loading" | "failed";
-  error: string | null;
+  error: UserError | null;
 };
 
 const initialState: MeState = {
@@ -26,26 +33,40 @@ export const fetchMe = createAsyncThunk<User>(
   "me/fetchMe",
   async (_, { rejectWithValue }) => {
     try {
-      const res = await api.get<User>("/users/me");
-      return res.data;
+      const res = await api.get<UserResponse>("/users/me");
+      if ("error" in res.data) {
+        return rejectWithValue(res.data.error);
+      }
+      return UserMapper.toUser(res.data);
     } catch (e) {
-      return rejectWithValue(getApiErrorMessage(e));
+      return rejectWithValue({
+        code: "FETCH_ME_FAILED",
+        message: getApiErrorMessage(e),
+      });
     }
-  },
+  }
 );
 
-export const updatePrivacy = createAsyncThunk<User, UpdatePrivacyDto>(
-  "me/updatePrivacy",
+export const updateProfile = createAsyncThunk<User, UpdateProfileBodyDTO>(
+  "me/updateProfile",
   async (dto, { rejectWithValue }) => {
     try {
-      await api.patch("/users/me/privacy", dto);
-      const res = await api.get<User>("/users/me");
-      return res.data;
+      await api.patch("/users/me/profile", dto);
+      const res = await api.get<UserResponse>("/users/me");
+      if ("error" in res.data) {
+        return rejectWithValue(res.data.error);
+      }
+      return UserMapper.toUser(res.data);
     } catch (e) {
-      return rejectWithValue(getApiErrorMessage(e));
+      return rejectWithValue({
+        code: "UPDATE_PROFILE_FAILED",
+        message: getApiErrorMessage(e),
+      });
     }
-  },
+  }
 );
+
+//TODO: Update Provicy: isPrivate
 
 const meSlice = createSlice({
   name: "me",
@@ -70,19 +91,25 @@ const meSlice = createSlice({
       })
       .addCase(fetchMe.rejected, (state, action) => {
         state.status = "failed";
-        state.error = (action.payload as string) ?? "Failed to load user";
+        state.error = (action.payload as UserError) ?? {
+          code: "FRONTEND_ERROR",
+          message: "Failed to load user",
+        };
       })
-      .addCase(updatePrivacy.pending, (state) => {
+      .addCase(updateProfile.pending, (state) => {
         state.status = "loading";
         state.error = null;
       })
-      .addCase(updatePrivacy.fulfilled, (state, action) => {
+      .addCase(updateProfile.fulfilled, (state, action) => {
         state.status = "idle";
         state.me = action.payload;
       })
-      .addCase(updatePrivacy.rejected, (state, action) => {
+      .addCase(updateProfile.rejected, (state, action) => {
         state.status = "failed";
-        state.error = (action.payload as string) ?? "Failed to update privacy";
+        state.error = (action.payload as UserError) ?? {
+          code: "UPDATE_PROFILE_FAILED",
+          message: "Failed to update user profile",
+        };
       })
       .addCase(updateMyProfile.fulfilled, (state, action) => {
         state.me = action.payload;

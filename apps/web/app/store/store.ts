@@ -1,10 +1,10 @@
 import { configureStore } from "@reduxjs/toolkit";
 
-import authReducer from "../features/auth/authSlice";
-import meReducer from "../features/me/meSlice";
-import feedReducer from "../features/feed/feedSlice";
-import relationsReducer from "../features/relations/relationsSlice";
-import usersReducer from "../features/users/usersSlice";
+import authReducer from "../features/auth/auth.slice";
+import meReducer from "../features/me/me.slice";
+import feedReducer from "../features/post/post.slice";
+import relationsReducer from "../features/relation/relation.slice";
+import usersReducer from "../features/user/user.slice";
 
 export const store = configureStore({
   reducer: {
@@ -18,4 +18,3 @@ export const store = configureStore({
 
 export type RootState = ReturnType<typeof store.getState>;
 export type AppDispatch = typeof store.dispatch;
-

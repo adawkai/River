@@ -1,3 +1,11 @@
+import type {
+  ListUserResponseDTO,
+  ListUserErrorResponseDTO,
+  UserResponseDTO,
+  UserErrorResponseDTO,
+  ErrorResponseDTO,
+} from "@social/shared";
+
 export type User = {
   id: string;
   name: string;
@@ -9,28 +17,29 @@ export type User = {
   postCount: number;
   followersCount: number;
   followingCount: number;
-  createdAt: string;
-  updatedAt: string;
+  createdAt: Date;
+  updatedAt: Date;
   profile?: {
     id?: string;
-    createdAt?: string;
-    updatedAt?: string;
+    createdAt?: Date;
+    updatedAt?: Date;
     title?: string;
     company?: string;
     bio?: string;
     gender?: string;
     website?: string;
-    birthDate?: string;
+    birthDate?: Date;
     location?: string;
     avatarUrl?: string;
     contact?: string;
   };
 };
 
-export type SearchResponse = {
-  items: User[];
-  nextCursor: string | null;
-};
+export type UserError = ErrorResponseDTO;
+
+export type ListUserResponse = ListUserResponseDTO | ListUserErrorResponseDTO;
+
+export type UserResponse = UserResponseDTO | UserErrorResponseDTO;
 
 export type UpdatePrivacyDto = {
   isPrivate: boolean;
@@ -43,7 +52,7 @@ export type UpdateProfileDto = {
   bio?: string;
   gender?: "MALE" | "FEMALE" | "OTHER";
   website?: string;
-  birthDate?: string;
+  birthDate?: Date;
   location?: string;
   avatarUrl?: string;
   contact?: string;

@@ -12,7 +12,7 @@ import {
 import { Input } from "../../components/ui/input";
 import { Label } from "../../components/ui/label";
 import { useAppDispatch, useAppSelector } from "../../store/hooks";
-import { login } from "../../features/auth/authSlice";
+import { login } from "../../features/auth/auth.slice";
 
 export default function SignInRoute() {
   const dispatch = useAppDispatch();

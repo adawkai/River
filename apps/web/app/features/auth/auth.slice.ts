@@ -1,26 +1,29 @@
 import { createAsyncThunk, createSlice } from "@reduxjs/toolkit";
 import type { PayloadAction } from "@reduxjs/toolkit";
 
-import type { LoginDto, RegisterDto } from "@social/shared/models/auth";
-
-import { api, getApiErrorMessage } from "../../shared/api/client";
+// utilities
+import { api, getApiErrorMessage } from "~/shared/api/client";
 import {
   clearAccessToken,
   getAccessToken,
   setAccessToken,
-} from "../../shared/auth/tokenStorage";
-import type { User } from "../users/types";
+} from "~/shared/auth/token-storage";
+import { UserMapper } from "../user/user.mapper";
 
-type AuthRes = {
-  accessToken: string;
-  user: User;
-};
+// Types && DTOs
+import type { User } from "../user/user.types";
+import type { UserLoginBodyDTO, UserRegisterBodyDTO } from "@social/shared";
+import type {
+  AuthError,
+  AuthLoginResponse,
+  AuthRegisterResponse,
+} from "./auth.type";
 
 type AuthState = {
   accessToken: string | null;
   user: User | null;
   status: "idle" | "loading" | "failed";
-  error: string | null;
+  error: AuthError | null;
 };
 
 const initialState: AuthState = {
@@ -30,29 +33,47 @@ const initialState: AuthState = {
   error: null,
 };
 
-export const login = createAsyncThunk<AuthRes, LoginDto>(
-  "auth/login",
-  async (dto, { rejectWithValue }) => {
-    try {
-      const res = await api.post<AuthRes>("/auth/login", dto);
-      return res.data;
-    } catch (e) {
-      return rejectWithValue(getApiErrorMessage(e));
+export const login = createAsyncThunk<
+  { user: User; accessToken: string },
+  UserLoginBodyDTO
+>("auth/login", async (dto, { rejectWithValue }) => {
+  try {
+    const res = await api.post<AuthLoginResponse>("/auth/login", dto);
+    if ("error" in res.data) {
+      return rejectWithValue(res.data.error);
     }
-  },
-);
+    return {
+      user: UserMapper.toUser(res.data.user),
+      accessToken: res.data.accessToken,
+    };
+  } catch (e) {
+    return rejectWithValue({
+      code: "FRONTEND_ERROR",
+      message: getApiErrorMessage(e),
+    });
+  }
+});
 
-export const register = createAsyncThunk<AuthRes, RegisterDto>(
-  "auth/register",
-  async (dto, { rejectWithValue }) => {
-    try {
-      const res = await api.post<AuthRes>("/auth/register", dto);
-      return res.data;
-    } catch (e) {
-      return rejectWithValue(getApiErrorMessage(e));
+export const register = createAsyncThunk<
+  { user: User; accessToken: string },
+  UserRegisterBodyDTO
+>("auth/register", async (dto, { rejectWithValue }) => {
+  try {
+    const res = await api.post<AuthRegisterResponse>("/auth/register", dto);
+    if ("error" in res.data) {
+      return rejectWithValue(res.data.error);
     }
-  },
-);
+    return {
+      user: UserMapper.toUser(res.data.user),
+      accessToken: res.data.accessToken,
+    };
+  } catch (e) {
+    return rejectWithValue({
+      code: "FRONTEND_ERROR",
+      message: getApiErrorMessage(e),
+    });
+  }
+});
 
 const authSlice = createSlice({
   name: "auth",
@@ -83,7 +104,10 @@ const authSlice = createSlice({
       })
       .addCase(login.rejected, (state, action) => {
         state.status = "failed";
-        state.error = (action.payload as string) ?? "Login failed";
+        state.error = (action.payload as AuthError) ?? {
+          code: "LOGIN_FAILED",
+          message: "Login failed",
+        };
       })
       .addCase(register.pending, (state) => {
         state.status = "loading";
@@ -97,11 +121,13 @@ const authSlice = createSlice({
       })
       .addCase(register.rejected, (state, action) => {
         state.status = "failed";
-        state.error = (action.payload as string) ?? "Registration failed";
+        state.error = (action.payload as AuthError) ?? {
+          code: "REGISTRATION_FAILED",
+          message: "Registration failed",
+        };
       });
   },
 });
 
 export const { logout, setUser } = authSlice.actions;
 export default authSlice.reducer;
-

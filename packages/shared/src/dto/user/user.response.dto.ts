@@ -1,6 +1,5 @@
 import { Type } from "class-transformer";
 import {
-  IsArray,
   IsBoolean,
   IsDate,
   IsEmail,
@@ -10,6 +9,7 @@ import {
   IsString,
   ValidateNested,
 } from "class-validator";
+import { ErrorResponseDTO } from "../error.response.dto";
 
 export enum UserRole {
   ADMIN = "ADMIN",
@@ -81,15 +81,9 @@ export class ProfileResponseDTO {
   contact!: string;
 }
 
-export class ListUsersResponseDTO {
-  @IsArray()
-  @ValidateNested({ each: true })
-  @Type(() => UserResponseDTO)
-  items!: UserResponseDTO[];
-
-  @IsInt()
-  take!: number;
-
-  @IsString()
-  nextCursor!: string | null;
+export class UserErrorResponseDTO {
+  @IsObject()
+  @ValidateNested()
+  @Type(() => ErrorResponseDTO)
+  error!: ErrorResponseDTO;
 }

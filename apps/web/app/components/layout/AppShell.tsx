@@ -5,11 +5,11 @@ import { Button } from "../ui/button";
 import { Avatar, AvatarFallback, AvatarImage } from "../ui/avatar";
 import { cn } from "../../lib/utils";
 import { useAppDispatch, useAppSelector } from "../../store/hooks";
-import { logout } from "../../features/auth/authSlice";
-import { clearMe } from "../../features/me/meSlice";
-import { clearEntities } from "../../features/users/usersSlice";
-import { clearFeed } from "../../features/feed/feedSlice";
-import { clearRelations } from "../../features/relations/relationsSlice";
+import { logout } from "../../features/auth/auth.slice";
+import { clearMe } from "../../features/me/me.slice";
+import { clearEntities } from "../../features/user/user.slice";
+import { clearFeed } from "../../features/post/post.slice";
+import { clearRelations } from "../../features/relation/relation.slice";
 
 function initials(name: string, username: string) {
   const display = name || username;
@@ -65,7 +65,7 @@ export function AppShell({ children }: { children: React.ReactNode }) {
                   to="/feed"
                   className={cn(
                     "inline-flex items-center gap-2 rounded-md px-2 py-1 text-sm hover:bg-accent",
-                    location.pathname.startsWith("/feed") && "bg-accent",
+                    location.pathname.startsWith("/feed") && "bg-accent"
                   )}
                 >
                   <Home />
@@ -74,7 +74,7 @@ export function AppShell({ children }: { children: React.ReactNode }) {
                   to="/network"
                   className={cn(
                     "inline-flex items-center gap-2 rounded-md px-2 py-1 text-sm hover:bg-accent",
-                    location.pathname.startsWith("/network") && "bg-accent",
+                    location.pathname.startsWith("/network") && "bg-accent"
                   )}
                 >
                   <Users />
@@ -83,12 +83,15 @@ export function AppShell({ children }: { children: React.ReactNode }) {
                   to={`/u/${me.username}`}
                   className={cn(
                     "inline-flex items-center gap-2 rounded-md px-2 py-1 text-sm hover:bg-accent",
-                    location.pathname.startsWith("/u/") && "bg-accent",
+                    location.pathname.startsWith("/u/") && "bg-accent"
                   )}
                 >
                   <Avatar className="h-7 w-7">
                     {me.profile?.avatarUrl ? (
-                      <AvatarImage src={me.profile.avatarUrl} alt={me.username} />
+                      <AvatarImage
+                        src={me.profile.avatarUrl}
+                        alt={me.username}
+                      />
                     ) : null}
                     <AvatarFallback>
                       {initials(me.name, me.username) || "U"}

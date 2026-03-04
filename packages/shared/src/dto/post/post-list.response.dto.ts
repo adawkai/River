@@ -1,9 +1,10 @@
 import { Type } from "class-transformer";
-import { IsArray, IsString, ValidateNested } from "class-validator";
+import { IsArray, IsObject, IsString, ValidateNested } from "class-validator";
 
 import { PostResponseDTO } from "./post.response.dto";
+import { ErrorResponseDTO } from "../error.response.dto";
 
-export class PostListResponseDTO {
+export class ListPostResponseDTO {
   @IsArray()
   @ValidateNested({ each: true })
   @Type(() => PostResponseDTO)
@@ -11,4 +12,11 @@ export class PostListResponseDTO {
 
   @IsString()
   nextCursor!: string | null;
+}
+
+export class ListPostErrorResponseDTO {
+  @IsObject()
+  @ValidateNested()
+  @Type(() => ErrorResponseDTO)
+  error!: ErrorResponseDTO;
 }
