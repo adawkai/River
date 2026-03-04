@@ -7,7 +7,7 @@ import { PostEntityDTOMapperPort } from '../ports/post.mapper.port';
 
 // Entities, Value Objects, && DTOs
 import { UserId } from '@/user/domain/value-object/user-id.vo';
-import { PostListResponseDTO } from '@social/shared';
+import { ListPostResponseDTO } from '@social/shared';
 
 @Injectable()
 export class GetFeedUseCase {
@@ -22,7 +22,7 @@ export class GetFeedUseCase {
       cursor?: string;
       take?: number;
     },
-  ): Promise<PostListResponseDTO> {
+  ): Promise<ListPostResponseDTO> {
     const { items, nextCursor } = await this.postRepo.feed(userId, pagination);
     return PostEntityDTOMapperPort.toFeedDTO(items, nextCursor);
   }

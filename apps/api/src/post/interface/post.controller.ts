@@ -18,7 +18,7 @@ import { GetFeedUseCase } from '../application/use-cases/get-feed.usecase';
 import {
   CreatePostBodyDTO,
   CreatePostResponseDTO,
-  PostListResponseDTO,
+  ListPostResponseDTO,
 } from '@social/shared';
 
 @Controller('posts')
@@ -42,7 +42,7 @@ export class PostController {
     @Req() req: any,
     @Query('cursor') cursor?: string,
     @Query('take') take?: string,
-  ): Promise<PostListResponseDTO> {
+  ): Promise<ListPostResponseDTO> {
     Logger.log('feed', req.user.userId, cursor, take);
     return this.getFeed.execute(req.user.userId, {
       cursor,

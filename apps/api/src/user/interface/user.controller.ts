@@ -28,7 +28,7 @@ import {
   ListUserResponseDTO,
   UpdateProfileBodyDTO,
   UserResponseDTO,
-  PostListResponseDTO,
+  ListPostResponseDTO,
 } from '@social/shared';
 
 @Controller('users')
@@ -86,7 +86,7 @@ export class UserController {
     @Param('userId') userId: string,
     @Query('cursor') cursor?: string,
     @Query('take') take?: string,
-  ): Promise<PostListResponseDTO> {
+  ): Promise<ListPostResponseDTO> {
     return this.getUserPosts.execute(UserId.from(userId), {
       cursor,
       take: take ? parseInt(take, 10) : 10,

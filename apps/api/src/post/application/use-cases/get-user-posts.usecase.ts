@@ -7,7 +7,7 @@ import { PostEntityDTOMapperPort } from '../ports/post.mapper.port';
 
 // Entities, Value Objects, && DTOs
 import { UserId } from '@/user/domain/value-object/user-id.vo';
-import { PostListResponseDTO } from '@social/shared';
+import { ListPostResponseDTO } from '@social/shared';
 
 @Injectable()
 export class GetUserPostsUseCase {
@@ -16,7 +16,7 @@ export class GetUserPostsUseCase {
   async execute(
     userId: UserId,
     pagination?: { cursor?: string; take?: number },
-  ): Promise<PostListResponseDTO> {
+  ): Promise<ListPostResponseDTO> {
     const { items, nextCursor } = await this.posts.findByAuthorId(
       userId,
       pagination,
