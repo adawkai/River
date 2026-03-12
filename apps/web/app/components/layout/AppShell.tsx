@@ -1,5 +1,5 @@
 import { Link, useLocation, useNavigate } from "react-router";
-import { Home, LogOut, Settings, User, Users } from "lucide-react";
+import { Home, LogOut, Settings, User, Users, Bell } from "lucide-react";
 
 import { Button } from "../ui/button";
 import { Avatar, AvatarFallback, AvatarImage } from "../ui/avatar";
@@ -43,13 +43,13 @@ export function AppShell({ children }: { children: React.ReactNode }) {
 
   return (
     <div className="min-h-dvh bg-background relative flex flex-col">
-      <header className="sticky top-0 z-10 border-b bg-background/80 backdrop-blur z-100">
+      <header className="sticky top-0 border-b bg-background/80 backdrop-blur z-100">
         <div className="mx-auto flex h-14 max-w-5xl items-center justify-between px-4">
           <Link to="/" className="flex items-center gap-2 font-semibold">
             <span className="inline-flex h-8 w-8 items-center justify-center rounded-lg bg-primary text-primary-foreground">
-              ms
+              R
             </span>
-            <span className="hidden sm:inline">mini-social</span>
+            <span className="hidden sm:inline">River</span>
           </Link>
 
           <nav className="flex items-center gap-2">
@@ -78,6 +78,16 @@ export function AppShell({ children }: { children: React.ReactNode }) {
                   )}
                 >
                   <Users />
+                </Link>
+                <Link
+                  to="/notification"
+                  className={cn(
+                    "inline-flex items-center gap-2 rounded-md px-2 py-1 text-sm hover:bg-accent",
+                    location.pathname.startsWith("/notification") &&
+                      "bg-accent",
+                  )}
+                >
+                  <Bell />
                 </Link>
                 <Link
                   to={`/u/${me.username}`}

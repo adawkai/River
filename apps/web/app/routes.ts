@@ -7,6 +7,7 @@ export default [
     index("routes/app/home.tsx"),
     route("feed", "routes/app/feed.tsx"),
     route("network", "routes/app/network.tsx"),
+    route("notification", "routes/app/notification.tsx"),
     route("onboarding", "routes/app/onboarding.tsx"),
     route("u/:username", "routes/app/profile.tsx"),
     route("settings", "routes/app/settings.tsx"),

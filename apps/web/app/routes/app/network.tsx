@@ -8,11 +8,7 @@ import {
 } from "../../components/ui/avatar";
 import { Card, CardContent } from "../../components/ui/card";
 import { Input } from "../../components/ui/input";
-import {
-  searchUsers,
-  setQuery,
-  resetSearch,
-} from "../../features/user/user.slice";
+import { searchUsers, setQuery } from "../../features/user/user.slice";
 import { useAppDispatch, useAppSelector } from "../../store/hooks";
 
 export default function NetworkRoute() {

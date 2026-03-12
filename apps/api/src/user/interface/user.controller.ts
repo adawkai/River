@@ -68,7 +68,6 @@ export class UserController {
   @UseGuards(JwtAuthGuard)
   @Get('me')
   me(@Req() req: any): Promise<UserResponseDTO> {
-    Logger.log('me', req.user.userId);
     return this.getMe.execute(req.user.userId);
   }
 

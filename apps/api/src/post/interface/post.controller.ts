@@ -43,7 +43,6 @@ export class PostController {
     @Query('cursor') cursor?: string,
     @Query('take') take?: string,
   ): Promise<ListPostResponseDTO> {
-    Logger.log('feed', req.user.userId, cursor, take);
     return this.getFeed.execute(req.user.userId, {
       cursor,
       take: take ? parseInt(take, 10) : 10,

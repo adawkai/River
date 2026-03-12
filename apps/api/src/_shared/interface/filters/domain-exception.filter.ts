@@ -17,7 +17,6 @@ export class DomainExceptionFilter implements ExceptionFilter {
       return;
     }
 
-    this.logger.error(exception.message, exception.stack);
     res.status(500).json({
       code: 'INTERNAL_SERVER_ERROR',
       message: 'Internal server error',
