@@ -8,6 +8,7 @@ import type { UserRepoPort } from '@/user/application/port/user.repo.port';
 // Errors
 import { UserInactiveError, UserNotFoundError } from '@/user/domain/errors';
 import { PostEntityDTOMapperPort } from '../ports/post.mapper.port';
+import type { PostEventPublisherPort } from '../ports/event.publisher.port';
 
 // Entities, Value Objects, && DTOs
 import { UserId } from '@/user/domain/value-object/user-id.vo';
@@ -21,6 +22,8 @@ export class CreatePostUseCase {
     private readonly postRepo: PostRepoPort,
     @Inject(TOKENS.USER_REPO)
     private readonly userRepo: UserRepoPort,
+    @Inject(TOKENS.POST_EVENT_PUBLISHER)
+    private readonly postEventPublisher: PostEventPublisherPort,
   ) {}
 
   async execute(
@@ -38,6 +41,11 @@ export class CreatePostUseCase {
     });
 
     await this.postRepo.create(post);
+
+    await this.postEventPublisher.publishPostCreatedEvent({
+      postId: post.id.toString(),
+      authorId: post.authorId.toString(),
+    });
 
     return {
       ok: true,

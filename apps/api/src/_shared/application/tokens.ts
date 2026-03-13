@@ -13,4 +13,5 @@ export const TOKENS = {
 
   // KAFKA
   KAFKA_SERVICE: Symbol('KAFKA_SERVICE'),
+  POST_EVENT_PUBLISHER: Symbol('POST_EVENT_PUBLISHER'),
 } as const;

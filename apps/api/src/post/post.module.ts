@@ -7,6 +7,7 @@ import { GetFeedUseCase } from './application/use-cases/get-feed.usecase';
 import { GetUserPostsUseCase } from './application/use-cases/get-user-posts.usecase';
 import { TOKENS } from '@/_shared/application/tokens';
 import { PrismaPostRepo } from './infra/persistence/prisma/prisma-post.repo';
+import { KafkaPostEventPublisher } from './infra/kafka/publishers/kafka-event.publisher';
 
 @Module({
   imports: [PrismaModule, forwardRef(() => UserModule)],
@@ -19,6 +20,7 @@ import { PrismaPostRepo } from './infra/persistence/prisma/prisma-post.repo';
 
     // Repositories
     { provide: TOKENS.POST_REPO, useClass: PrismaPostRepo },
+    { provide: TOKENS.POST_EVENT_PUBLISHER, useClass: KafkaPostEventPublisher },
   ],
   exports: [CreatePostUseCase, GetFeedUseCase, GetUserPostsUseCase],
 })
